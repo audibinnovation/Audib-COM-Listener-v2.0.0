@@ -1,0 +1,39 @@
+/*
+ * Project: COM Listener v2.0.0
+ * File: MainForm.cs
+ * Author: Arun (Audib Innovation)
+ * Created: May 2026
+ * 
+ * Description:
+ *   Windows Forms application for monitoring and debugging serial communication
+ *   with embedded devices (ESP32, STM32, Arduino). Provides a clean dashboard
+ *   with connection stats, live log window, and command send box.
+ * 
+ * Features:
+ *   - Connect/disconnect to COM ports with configurable baud rate
+ *   - Real-time statistics (Received KB, Sent KB, Packets, Errors, Uptime)
+ *   - Connection status indicator (green/red)
+ *   - Scrollable log window with save-to-file option
+ *   - Command input box with Send button and Enter key shortcut
+ * 
+ * License:
+ *   MIT License. See LICENSE file in repository for details.
+ */
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>COMListenerGUI</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+	<ApplicationIcon>AppIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.7" />
+    <PackageReference Include="System.Windows.Forms.DataVisualization" Version="1.0.0-prerelease.20110.1" />
+  </ItemGroup>
+
+</Project>
