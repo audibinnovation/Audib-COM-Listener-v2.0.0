@@ -4,7 +4,9 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading; // Added for the Uptime Timer
+using System.Windows.Threading;
+using Microsoft.Win32;
+using System.IO;
 
 namespace ComPortVisualizer
 {
@@ -100,6 +102,7 @@ namespace ComPortVisualizer
             }
         }
 
+        // Helper method to strip ANSI color codes and garbage characters from the hardware output
         private string CleanIncomingData(string rawData)
         {
             if (string.IsNullOrEmpty(rawData))
@@ -174,6 +177,34 @@ namespace ComPortVisualizer
             }
         }
 
+        // --- SAVE LOG LOGIC ---
+        private void BtnSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TxtConsole.Text))
+            {
+                MessageBox.Show("The console is empty. There is no data to save.", "Empty Log", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text file (*.txt)|*.txt|Log file (*.log)|*.log|All files (*.*)|*.*";
+            saveFileDialog.Title = "Save Serial Log Data";
+            saveFileDialog.FileName = $"SerialLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    File.WriteAllText(saveFileDialog.FileName, TxtConsole.Text);
+                    MessageBox.Show("Log saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error saving file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private void LogMessage(string message, bool isIncoming = false)
         {
             TxtConsole.AppendText(message + (isIncoming ? "" : Environment.NewLine));
@@ -193,7 +224,6 @@ namespace ComPortVisualizer
         {
             Dispatcher.Invoke(() =>
             {
-                // Convert bytes to Kilobytes
                 TxtRxKB.Text = (_bytesReceived / 1024.0).ToString("0.00");
                 TxtTxKB.Text = (_bytesSent / 1024.0).ToString("0.00");
                 TxtPackets.Text = _packetsCount.ToString();
