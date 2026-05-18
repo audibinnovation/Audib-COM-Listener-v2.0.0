@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading; // Added for the Uptime Timer
 
 namespace ComPortVisualizer
 {
@@ -11,13 +12,25 @@ namespace ComPortVisualizer
     {
         private SerialPort _serialPort;
 
+        // --- STATS TRACKING VARIABLES ---
+        private DispatcherTimer _uptimeTimer;
+        private DateTime _connectionStartTime;
+        private long _bytesReceived = 0;
+        private long _bytesSent = 0;
+        private int _packetsCount = 0;
+        private int _errorCount = 0;
+
         public MainWindow()
         {
             InitializeComponent();
             LoadAvailablePorts();
+
+            // Setup the uptime timer to tick every 1 second
+            _uptimeTimer = new DispatcherTimer();
+            _uptimeTimer.Interval = TimeSpan.FromSeconds(1);
+            _uptimeTimer.Tick += UptimeTimer_Tick;
         }
 
-        // Dynamically load ports when the user clicks the dropdown
         private void CmbPorts_DropDownOpened(object sender, EventArgs e)
         {
             LoadAvailablePorts();
@@ -28,7 +41,6 @@ namespace ComPortVisualizer
             string[] ports = SerialPort.GetPortNames();
             CmbPorts.ItemsSource = ports;
 
-            // Auto-select the first port if available
             if (ports.Length > 0 && CmbPorts.SelectedIndex == -1)
             {
                 CmbPorts.SelectedIndex = 0;
@@ -46,24 +58,25 @@ namespace ComPortVisualizer
             try
             {
                 string selectedPort = CmbPorts.SelectedItem.ToString();
-
-                // Read the selected Baud Rate from the UI
                 string baudRateStr = ((System.Windows.Controls.ComboBoxItem)CmbBaudRate.SelectedItem).Content.ToString();
                 int baudRate = int.Parse(baudRateStr);
 
-                // Initialize the serial port
                 _serialPort = new SerialPort(selectedPort, baudRate, Parity.None, 8, StopBits.One);
-
-                // Subscribe to the data received event
                 _serialPort.DataReceived += SerialPort_DataReceived;
                 _serialPort.Open();
+
+                // Reset and Start Stats
+                ResetStats();
+                _connectionStartTime = DateTime.Now;
+                _uptimeTimer.Start();
 
                 UpdateUIState(true);
                 LogMessage($"[System] Connected to {selectedPort} at {baudRate} bps.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to connect: {ex.Message}\nMake sure the port isn't being used by another program.", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                IncrementError();
+                MessageBox.Show($"Failed to connect: {ex.Message}", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -76,54 +89,48 @@ namespace ComPortVisualizer
         {
             if (_serialPort != null && _serialPort.IsOpen)
             {
-                // Unsubscribe from the event before closing
                 _serialPort.DataReceived -= SerialPort_DataReceived;
-
                 _serialPort.Close();
                 _serialPort.Dispose();
+
+                _uptimeTimer.Stop();
 
                 UpdateUIState(false);
                 LogMessage("[System] Disconnected.");
             }
         }
 
-        // Helper method to strip ANSI color codes and garbage characters from the ESP32
         private string CleanIncomingData(string rawData)
         {
             if (string.IsNullOrEmpty(rawData))
                 return rawData;
 
-            // 1. Remove ANSI escape sequences (color codes like \x1b[0;32m)
             string cleaned = Regex.Replace(rawData, @"\x1B\[[0-9;]*[a-zA-Z]", "");
-
-            // 2. Remove stray standalone '>' characters that often glitch into ESP32 logs
             cleaned = cleaned.Replace("> ", "");
-
             return cleaned;
         }
 
-        // Event handler for incoming data (Fires on a background thread)
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
             {
-                // Read the raw messy data
                 string rawData = _serialPort.ReadExisting();
 
-                // Clean it up using the helper method
+                // Track received stats
+                _bytesReceived += rawData.Length;
+                _packetsCount++;
+                UpdateStatsUI();
+
                 string cleanData = CleanIncomingData(rawData);
 
-                // Push ONLY the clean data to the UI thread
                 if (!string.IsNullOrEmpty(cleanData))
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        LogMessage(cleanData, isIncoming: true);
-                    });
+                    Dispatcher.Invoke(() => LogMessage(cleanData, isIncoming: true));
                 }
             }
             catch (Exception ex)
             {
+                IncrementError();
                 Dispatcher.Invoke(() => LogMessage($"[Error Reading]: {ex.Message}"));
             }
         }
@@ -133,7 +140,6 @@ namespace ComPortVisualizer
             SendCommand();
         }
 
-        // Allow sending commands by pressing the Enter key
         private void TxtSend_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -150,40 +156,79 @@ namespace ComPortVisualizer
 
                 try
                 {
-                    // WriteLine automatically appends a newline (\n) character
                     _serialPort.WriteLine(command);
+
+                    // Track sent stats (+2 for the \r\n that WriteLine adds)
+                    _bytesSent += command.Length + 2;
+                    _packetsCount++;
+                    UpdateStatsUI();
+
                     LogMessage($"< {command}");
                     TxtSend.Clear();
                 }
                 catch (Exception ex)
                 {
+                    IncrementError();
                     LogMessage($"[Error Sending]: {ex.Message}");
                 }
             }
         }
 
-        // Helper method to write to the terminal view
         private void LogMessage(string message, bool isIncoming = false)
         {
-            // If it's outgoing system info, add a newline. If incoming, let the device dictate formatting.
             TxtConsole.AppendText(message + (isIncoming ? "" : Environment.NewLine));
             TxtConsole.ScrollToEnd();
         }
 
-        // Toggle buttons, dropdowns, and status lights based on connection state
+        // --- STATS LOGIC METHODS ---
+
+        private void UptimeTimer_Tick(object sender, EventArgs e)
+        {
+            TimeSpan uptime = DateTime.Now - _connectionStartTime;
+            TxtUptime.Text = string.Format("{0:D2}:{1:D2}:{2:D2}",
+                uptime.Hours, uptime.Minutes, uptime.Seconds);
+        }
+
+        private void UpdateStatsUI()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                // Convert bytes to Kilobytes
+                TxtRxKB.Text = (_bytesReceived / 1024.0).ToString("0.00");
+                TxtTxKB.Text = (_bytesSent / 1024.0).ToString("0.00");
+                TxtPackets.Text = _packetsCount.ToString();
+                TxtErrors.Text = _errorCount.ToString();
+            });
+        }
+
+        private void ResetStats()
+        {
+            _bytesReceived = 0;
+            _bytesSent = 0;
+            _packetsCount = 0;
+            _errorCount = 0;
+            UpdateStatsUI();
+            TxtUptime.Text = "00:00:00";
+        }
+
+        private void IncrementError()
+        {
+            _errorCount++;
+            UpdateStatsUI();
+        }
+
         private void UpdateUIState(bool isConnected)
         {
             BtnConnect.IsEnabled = !isConnected;
             BtnDisconnect.IsEnabled = isConnected;
             CmbPorts.IsEnabled = !isConnected;
-            CmbBaudRate.IsEnabled = !isConnected; // Locks when connected, unlocks when disconnected
+            CmbBaudRate.IsEnabled = !isConnected;
 
-            StatusIndicator.Fill = isConnected ? new SolidColorBrush(Color.FromRgb(3, 218, 198)) : new SolidColorBrush(Colors.Red);
+            StatusIndicator.Fill = isConnected ? new SolidColorBrush(Color.FromRgb(0, 229, 255)) : new SolidColorBrush(Colors.Red);
             TxtStatus.Text = isConnected ? "Connected" : "Disconnected";
-            TxtStatus.Foreground = isConnected ? new SolidColorBrush(Color.FromRgb(3, 218, 198)) : new SolidColorBrush(Colors.Gray);
+            TxtStatus.Foreground = isConnected ? new SolidColorBrush(Color.FromRgb(0, 229, 255)) : new SolidColorBrush(Colors.White);
         }
 
-        // Ensure the port closes cleanly when the user clicks the 'X' to close the app
         protected override void OnClosed(EventArgs e)
         {
             DisconnectPort();
