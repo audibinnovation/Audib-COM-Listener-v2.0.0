@@ -1,11 +1,11 @@
 <Window x:Class="ComPortVisualizer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CYBER-LINK // Advanced Terminal" Height="700" Width="1000"
+        Title="Audib COMListener_v2.8" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen" FontFamily="Consolas" Foreground="#E0E0E0">
 
     <Window.Background>
-        <ImageBrush ImageSource="/Images/Copilot_20260518_115006.png" Stretch="UniformToFill" Opacity="0.85"/>
+        <ImageBrush ImageSource="/Images/Copilot_20260518_115006.png" Stretch="UniformToFill" Opacity="1.0"/>
     </Window.Background>
 
     <Window.Resources>
@@ -20,12 +20,12 @@
         <DropShadowEffect x:Key="RedGlow" BlurRadius="20" Color="{StaticResource NeonRed}" ShadowDepth="0" Opacity="0.8"/>
 
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#0A1526"/>
+            <Setter Property="Background" Value="#880A1526"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="BorderBrush" Value="{StaticResource CyanBrush}"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -33,20 +33,20 @@
                         <Border x:Name="border" Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="3" Padding="15,5">
+                                CornerRadius="4" Padding="15,5">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#003366"/>
+                                <Setter TargetName="border" Property="Background" Value="#AA003366"/>
                                 <Setter TargetName="border" Property="Effect" Value="{StaticResource CyanGlow}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource CyanBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="#DD00E5FF"/>
                                 <Setter Property="Foreground" Value="Black"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.4"/>
+                                <Setter Property="Opacity" Value="0.3"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -55,7 +55,7 @@
         </Style>
 
         <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#050D1A"/>
+            <Setter Property="Background" Value="#DD050D1A"/>
             <Setter Property="Foreground" Value="{StaticResource CyanBrush}"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -67,11 +67,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="#003366"/>
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#AA003366"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="#0077FF"/>
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#AA0077FF"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -81,7 +81,7 @@
         </Style>
 
         <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#050D1A"/>
+            <Setter Property="Background" Value="#66050D1A"/>
             <Setter Property="Foreground" Value="{StaticResource CyanBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource CyanBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -107,7 +107,7 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="Border" Property="Background" Value="#001C1F"/>
+                                                <Setter TargetName="Border" Property="Background" Value="#88001C1F"/>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -120,7 +120,7 @@
                                               Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                             <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                                 <Grid Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border Name="DropDownBorder" Background="#050D1A" BorderBrush="{StaticResource CyanBrush}" BorderThickness="1" CornerRadius="2">
+                                    <Border Name="DropDownBorder" Background="#DD050D1A" BorderBrush="{StaticResource CyanBrush}" BorderThickness="1" CornerRadius="2">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="10" Color="{StaticResource NeonCyan}" ShadowDepth="0" Opacity="0.5"/>
                                         </Border.Effect>
@@ -150,7 +150,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#050D1A" BorderBrush="#004488" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="0" Background="#AA050D1A" BorderBrush="#8800E5FF" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" Color="{StaticResource NeonBlue}" ShadowDepth="0" Opacity="0.5"/>
             </Border.Effect>
@@ -165,10 +165,10 @@
                     <ColumnDefinition Width="120"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="COM Port:" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14"/>
+                <TextBlock Grid.Column="0" Text="COM Port:" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" FontWeight="SemiBold"/>
                 <ComboBox x:Name="CmbPorts" Grid.Column="1" Height="30" DropDownOpened="CmbPorts_DropDownOpened" Margin="0,0,20,0"/>
 
-                <TextBlock Grid.Column="2" Text="Baud Rate:" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14"/>
+                <TextBlock Grid.Column="2" Text="Baud Rate:" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" FontWeight="SemiBold"/>
                 <ComboBox x:Name="CmbBaudRate" Grid.Column="3" Height="30" Margin="0,0,20,0">
                     <ComboBoxItem Content="4800"/>
                     <ComboBoxItem Content="9600"/>
@@ -182,19 +182,20 @@
 
                 <Button x:Name="BtnConnect" Grid.Column="5" Content="Connect" Click="BtnConnect_Click" Height="35" Margin="0,0,10,0">
                     <Button.Effect>
-                        <DropShadowEffect BlurRadius="10" Color="{StaticResource NeonCyan}" ShadowDepth="0" Opacity="0.6"/>
+                        <DropShadowEffect BlurRadius="10" Color="{StaticResource NeonCyan}" ShadowDepth="0" Opacity="0.4"/>
                     </Button.Effect>
                 </Button>
 
                 <Button x:Name="BtnDisconnect" Grid.Column="6" Content="Disconnect" Click="BtnDisconnect_Click" Height="35" BorderBrush="{StaticResource NeonRedBrush}" IsEnabled="False">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                            <Setter Property="BorderBrush" Value="#FF0044"/>
+                            <Setter Property="BorderBrush" Value="#88FF0044"/>
                             <Setter Property="Foreground" Value="#FF0044"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Effect" Value="{StaticResource RedGlow}"/>
-                                    <Setter Property="Background" Value="#330011"/>
+                                    <Setter Property="Background" Value="#88330011"/>
+                                    <Setter Property="BorderBrush" Value="#FFFF0044"/>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -203,27 +204,27 @@
             </Grid>
         </Border>
 
-        <Border Grid.Row="1" HorizontalAlignment="Center" Background="#0A1526" BorderBrush="{StaticResource CyanBrush}" BorderThickness="1,0,1,1" CornerRadius="0,0,10,10" Padding="30,5" Margin="0,-15,0,20">
+        <Border Grid.Row="1" HorizontalAlignment="Center" Background="#880A1526" BorderBrush="#8800E5FF" BorderThickness="1,0,1,1" CornerRadius="0,0,12,12" Padding="30,8" Margin="0,-15,0,20">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="10" Color="{StaticResource NeonCyan}" ShadowDepth="0" Opacity="0.4"/>
+                <DropShadowEffect BlurRadius="15" Color="{StaticResource NeonCyan}" ShadowDepth="0" Opacity="0.3"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Received KB: " Foreground="Gray"/>
+                <TextBlock Text="Received KB: " Foreground="#BBAAAAAA"/>
                 <TextBlock x:Name="TxtRxKB" Text="0.00" Foreground="{StaticResource CyanBrush}" FontWeight="Bold" Margin="0,0,20,0"/>
-                <TextBlock Text="Sent KB: " Foreground="Gray"/>
+                <TextBlock Text="Sent KB: " Foreground="#BBAAAAAA"/>
                 <TextBlock x:Name="TxtTxKB" Text="0.00" Foreground="{StaticResource CyanBrush}" FontWeight="Bold" Margin="0,0,20,0"/>
-                <TextBlock Text="Packets: " Foreground="Gray"/>
+                <TextBlock Text="Packets: " Foreground="#BBAAAAAA"/>
                 <TextBlock x:Name="TxtPackets" Text="0" Foreground="{StaticResource CyanBrush}" FontWeight="Bold" Margin="0,0,20,0"/>
-                <TextBlock Text="Errors: " Foreground="Gray"/>
+                <TextBlock Text="Errors: " Foreground="#BBAAAAAA"/>
                 <TextBlock x:Name="TxtErrors" Text="0" Foreground="{StaticResource CyanBrush}" FontWeight="Bold" Margin="0,0,20,0"/>
-                <TextBlock Text="Uptime: " Foreground="Gray"/>
+                <TextBlock Text="Uptime: " Foreground="#BBAAAAAA"/>
                 <TextBlock x:Name="TxtUptime" Text="00:00:00" Foreground="{StaticResource CyanBrush}" FontWeight="Bold"/>
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="2" Background="#030812" BorderBrush="{StaticResource CyanBrush}" BorderThickness="2" CornerRadius="5" Margin="0,0,0,20">
+        <Border Grid.Row="2" Background="#D5000000" BorderBrush="#6600E5FF" BorderThickness="1.5" CornerRadius="8" Margin="0,0,0,20">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="25" Color="{StaticResource NeonCyan}" ShadowDepth="0" Opacity="0.6"/>
+                <DropShadowEffect BlurRadius="25" Color="{StaticResource NeonCyan}" ShadowDepth="0" Opacity="0.4"/>
             </Border.Effect>
             <Grid>
                 <Grid.RowDefinitions>
@@ -231,16 +232,16 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Background="#0A1526" BorderBrush="{StaticResource CyanBrush}" BorderThickness="0,0,0,1" Padding="15,8">
-                    <TextBlock Text="Live Data" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                <Border Grid.Row="0" Background="#990A1526" BorderBrush="#4400E5FF" BorderThickness="0,0,0,1" Padding="15,8" CornerRadius="8,8,0,0">
+                    <TextBlock Text="Live Data Stream" FontSize="16" FontWeight="Bold" Foreground="#EEFFFFFF"/>
                 </Border>
 
-                <TextBox x:Name="TxtConsole" Grid.Row="1" Background="Transparent" Foreground="#A0FFFF" BorderThickness="0" 
+                <TextBox x:Name="TxtConsole" Grid.Row="1" Background="Transparent" Foreground="#FFFFFF" BorderThickness="0" 
                          IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" 
                          FontSize="14" Padding="15" Margin="0">
                     <TextBox.Resources>
                         <Style TargetType="ScrollBar">
-                            <Setter Property="Background" Value="#050D1A"/>
+                            <Setter Property="Background" Value="#44050D1A"/>
                         </Style>
                     </TextBox.Resources>
                 </TextBox>
@@ -258,8 +259,8 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Background="#050D1A" BorderBrush="Gray" BorderThickness="1" CornerRadius="3" Margin="0,0,15,0">
-                <TextBox x:Name="TxtSend" Background="Transparent" Foreground="White" BorderThickness="0" 
+            <Border Grid.Row="0" Grid.Column="0" Background="#CC050D1A" BorderBrush="#55FFFFFF" BorderThickness="1" CornerRadius="5" Margin="0,0,15,0">
+                <TextBox x:Name="TxtSend" Background="Transparent" Foreground="#FFFFFF" BorderThickness="0" 
                          VerticalAlignment="Center" Padding="15,10" FontSize="15" 
                          KeyDown="TxtSend_KeyDown" Tag="Enter command..."/>
             </Border>
@@ -269,8 +270,14 @@
             <Button x:Name="BtnSave" Grid.Row="0" Grid.Column="2" Content="Save Log" Height="40" Click="BtnSave_Click">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                        <Setter Property="BorderBrush" Value="#00FF99"/>
+                        <Setter Property="BorderBrush" Value="#8800FF99"/>
                         <Setter Property="Foreground" Value="#00FF99"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#88003311"/>
+                                <Setter Property="BorderBrush" Value="#FF00FF99"/>
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </Button.Style>
             </Button>
@@ -281,7 +288,7 @@
                         <DropShadowEffect BlurRadius="10" Color="Red" ShadowDepth="0" Opacity="0.8"/>
                     </Ellipse.Effect>
                 </Ellipse>
-                <TextBlock x:Name="TxtStatus" Text="Disconnected" Foreground="White" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtStatus" Text="Disconnected" Foreground="#EEFFFFFF" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
             </StackPanel>
         </Grid>
     </Grid>
