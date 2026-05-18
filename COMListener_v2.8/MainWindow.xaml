@@ -113,13 +113,11 @@
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-
                             <ContentPresenter Name="ContentSite" IsHitTestVisible="False"  
                                               Content="{TemplateBinding SelectionBoxItem}"
                                               ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                               ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
                                               Margin="10,3,30,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-
                             <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                                 <Grid Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                     <Border Name="DropDownBorder" Background="#050D1A" BorderBrush="{StaticResource CyanBrush}" BorderThickness="1" CornerRadius="2">
@@ -252,6 +250,7 @@
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -265,9 +264,18 @@
                          KeyDown="TxtSend_KeyDown" Tag="Enter command..."/>
             </Border>
 
-            <Button x:Name="BtnSend" Grid.Row="0" Grid.Column="1" Content="Send" Height="40" Click="BtnSend_Click"/>
+            <Button x:Name="BtnSend" Grid.Row="0" Grid.Column="1" Content="Send" Height="40" Margin="0,0,10,0" Click="BtnSend_Click"/>
 
-            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,5,0">
+            <Button x:Name="BtnSave" Grid.Row="0" Grid.Column="2" Content="Save Log" Height="40" Click="BtnSave_Click">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="BorderBrush" Value="#00FF99"/>
+                        <Setter Property="Foreground" Value="#00FF99"/>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,5,0">
                 <Ellipse x:Name="StatusIndicator" Width="12" Height="12" Fill="Red" VerticalAlignment="Center" Margin="0,0,8,0">
                     <Ellipse.Effect>
                         <DropShadowEffect BlurRadius="10" Color="Red" ShadowDepth="0" Opacity="0.8"/>
