@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ComPortVisualizer
 {
@@ -87,22 +88,36 @@ namespace ComPortVisualizer
             DisconnectPort();
         }
 
-        private void DisconnectPort()
+        // --- UPDATED: Safe Disconnect to prevent freezing if USB is unplugged ---
+        private async void DisconnectPort()
         {
-            if (_serialPort != null && _serialPort.IsOpen)
+            if (_serialPort != null)
             {
-                _serialPort.DataReceived -= SerialPort_DataReceived;
-                _serialPort.Close();
-                _serialPort.Dispose();
+                var portToClose = _serialPort;
+                _serialPort = null;
 
+                portToClose.DataReceived -= SerialPort_DataReceived;
                 _uptimeTimer.Stop();
 
+                // Offload the dangerous Close() method to a background thread
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        if (portToClose.IsOpen)
+                            portToClose.Close();
+
+                        portToClose.Dispose();
+                    }
+                    catch { /* Ignore errors from yanked cables */ }
+                });
+
                 UpdateUIState(false);
-                LogMessage("[System] Disconnected.");
+                LogMessage("[System] Device disconnected cleanly.");
             }
         }
 
-        // Helper method to strip ANSI color codes and garbage characters from the hardware output
+        // Helper method to strip ANSI color codes and garbage characters
         private string CleanIncomingData(string rawData)
         {
             if (string.IsNullOrEmpty(rawData))
@@ -113,13 +128,15 @@ namespace ComPortVisualizer
             return cleaned;
         }
 
+        // --- UPDATED: Catches abrupt USB unplugs ---
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
             {
+                if (_serialPort == null || !_serialPort.IsOpen) return;
+
                 string rawData = _serialPort.ReadExisting();
 
-                // Track received stats
                 _bytesReceived += rawData.Length;
                 _packetsCount++;
                 UpdateStatsUI();
@@ -133,8 +150,11 @@ namespace ComPortVisualizer
             }
             catch (Exception ex)
             {
-                IncrementError();
-                Dispatcher.Invoke(() => LogMessage($"[Error Reading]: {ex.Message}"));
+                Dispatcher.Invoke(() =>
+                {
+                    LogMessage($"[System Warning]: Connection lost abruptly! ({ex.Message})");
+                    DisconnectPort();
+                });
             }
         }
 
@@ -161,7 +181,6 @@ namespace ComPortVisualizer
                 {
                     _serialPort.WriteLine(command);
 
-                    // Track sent stats (+2 for the \r\n that WriteLine adds)
                     _bytesSent += command.Length + 2;
                     _packetsCount++;
                     UpdateStatsUI();
@@ -212,7 +231,6 @@ namespace ComPortVisualizer
         }
 
         // --- STATS LOGIC METHODS ---
-
         private void UptimeTimer_Tick(object sender, EventArgs e)
         {
             TimeSpan uptime = DateTime.Now - _connectionStartTime;
